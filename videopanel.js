@@ -1,11 +1,24 @@
 /**
  * A panel implementing an HTML5 video player.
  * Use the `video` config option to add the file references.
+ * 
+ * Example:
+ * 
+ *      Ext.create('Ext.container.Viewport', {
+ *          layout: 'fit',
+ *          items: {
+ *              xtype: 'videopanel',
+ *              title: 'HTML5 video panel',
+ *              video: [ 'big_buck_bunny.webm', 'big_buck_bunny.ogg' ]
+ *          }
+ *      });
  */
 Ext.define('Ext.ux.VideoPanel', {
     extend: 'Ext.panel.Panel',
     xtype: 'videopanel',
     layout: 'fit',
+    playCls: 'x-ux-videopanel-control-play',
+    pauseCls: 'x-ux-videopanel-control-pause',
     onRender: function() {
     
         this.callParent(arguments);
@@ -48,13 +61,13 @@ Ext.define('Ext.ux.VideoPanel', {
         // when the video starts playing, start the time updater and change the button icon
         this.videoEl.on('playing', function() {
             this.timeUpdater.start();
-            this.playButton.setIconCls('x-ux-video-control-pause');
+            this.playButton.setIconCls(this.pauseCls);
         }, this);
 
         // when the video is paused, stop the time updater and change the button icon
         this.videoEl.on('pause', function() {
             this.timeUpdater.stop();
-            this.playButton.setIconCls('x-ux-video-control-play');
+            this.playButton.setIconCls(this.playCls);
         }, this);
 
         // when the video is ready to start playing, enable the controls
@@ -75,7 +88,7 @@ Ext.define('Ext.ux.VideoPanel', {
                 {
                     itemId: 'play',
                     xtype: 'button',
-                    iconCls: 'x-ux-video-control-play',
+                    iconCls: this.playCls,
                     handler: function() {
 
                         if (this.videoEl.dom.paused) {
