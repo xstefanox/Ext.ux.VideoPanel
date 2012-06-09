@@ -19,6 +19,8 @@ Ext.define('Ext.ux.VideoPanel', {
     layout: 'fit',
     playCls: 'x-ux-videopanel-control-play',
     pauseCls: 'x-ux-videopanel-control-pause',
+    downloadCls: 'x-ux-videopanel-download-button',
+    downloadMenuEntryCls: 'x-ux-videopanel-download-menuEntry',
     onRender: function() {
     
         this.callParent(arguments);
@@ -78,11 +80,25 @@ Ext.define('Ext.ux.VideoPanel', {
         // we need to save a reference to the video element for the tipText() method of the slider
         var videoEl = this.videoEl;
 
+        this.addDocked({
+            xtype: 'toolbar',
+            dock: 'top',
+            items: [
+                {
+                    itemId: 'downloadMenu',
+                    xtype: 'button',
+                    text: 'Download',
+                    iconCls: this.downloadCls,
+                    // create a menu, it will be filled below
+                    menu: []
+                }
+            ]
+        });
+        
         // create the controls toolbar
         this.addDocked({
             xtype: 'toolbar',
             dock: 'bottom',
-            layoutConfig: { autoWidth: false },
             disabled: true,
             items: [
                 {
@@ -152,13 +168,25 @@ Ext.define('Ext.ux.VideoPanel', {
         this.slider = this.getDockedItems('toolbar[dock="bottom"]')[0].items.get('slider');
         this.currentTime = this.getDockedItems('toolbar[dock="bottom"]')[0].items.get('currentTime');
         this.duration = this.getDockedItems('toolbar[dock="bottom"]')[0].items.get('duration');
+        this.downloadMenu = this.getDockedItems('toolbar[dock="top"]')[0].items.get('downloadMenu').menu;
 
         // add ech video to the list of sources for this video element
         Ext.each(this.video, function(url) {
+            
+            // add the <source> element
             this.videoEl.createChild({
                 tag: 'source',
                 src: url
             });
+            
+            // add the menu entry
+            this.downloadMenu.add({
+                text: url,
+                href: url,
+                tooltip: 'Right-click and select "Save as..." to download',
+                iconCls: this.downloadMenuEntryCls
+            });
+            
         }, this);
     }
 });
