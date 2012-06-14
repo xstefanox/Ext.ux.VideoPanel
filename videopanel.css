@@ -1,21 +1,105 @@
+/**
+ * Color definitions.
+ */
+/**
+ * Center the video element inside the panel.
+ */
+.x-ux-videopanel-body {
+  text-align: center; }
 
-.x-ux-videopanel-control-play
-{
-    background-image: url(http://cdn.dustball.com/control_play_blue.png);
-}
+.x-ux-videopanel-video {
+  margin-left: auto;
+  margin-right: auto; }
 
-.x-ux-videopanel-control-pause
-{
-    background-image: url(http://cdn.dustball.com/control_pause_blue.png);
-}
+/**
+ * Hide the spinner.
+ */
+.vjs-loading-spinner > div {
+  display: none; }
 
-.x-ux-videopanel-download-button
-{
-    background-image: url(http://cdn.dustball.com/page_white_put.png);
-}
+/**
+ * Icons for the download buttons.
+ */
+.x-ux-videopanel-download-button {
+  background-image: url(http://cdn.dustball.com/page_white_put.png); }
 
-.x-ux-videopanel-download-menuEntry
-{
-    background-image: url(http://cdn.dustball.com/page_white.png);
-}
+.x-ux-videopanel-download-menuEntry {
+  background-image: url(http://cdn.dustball.com/page_white.png); }
 
+.vjs-default-skin,
+.vjs-default-skin * {
+  box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  -ms-box-sizing: borcontent-boxder-box;
+  -webkit-box-sizing: content-box; }
+
+.vjs-default-skin .vjs-current-time,
+.vjs-default-skin .vjs-remaining-time,
+.vjs-default-skin div.vjs-progress-control {
+  background-color: #dae7f6 !important;
+  background-image: none;
+  border-color: #abc7ec; }
+
+.vjs-default-skin .vjs-current-time-display,
+.vjs-default-skin .vjs-remaining-time {
+  color: #04408c; }
+
+.vjs-default-skin div.vjs-seek-handle {
+  display: none; }
+
+.vjs-default-skin .vjs-big-play-button {
+  background-color: #cbddf3;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #dae7f6), color-stop(45%, #cddef3), color-stop(46%, #abc7ec), color-stop(50%, #abc7ec), color-stop(51%, #b8cfee), color-stop(100%, #cbddf3));
+  background-image: -webkit-linear-gradient(top, #dae7f6, #cddef3 45%, #abc7ec 46%, #abc7ec 50%, #b8cfee 51%, #cbddf3);
+  background-image: -moz-linear-gradient(top, #dae7f6, #cddef3 45%, #abc7ec 46%, #abc7ec 50%, #b8cfee 51%, #cbddf3);
+  background-image: -o-linear-gradient(top, #dae7f6, #cddef3 45%, #abc7ec 46%, #abc7ec 50%, #b8cfee 51%, #cbddf3);
+  background-image: -ms-linear-gradient(top, #dae7f6, #cddef3 45%, #abc7ec 46%, #abc7ec 50%, #b8cfee 51%, #cbddf3);
+  background-image: linear-gradient(top, #dae7f6, #cddef3 45%, #abc7ec 46%, #abc7ec 50%, #b8cfee 51%, #cbddf3);
+  border-color: #abc7ec; }
+
+.vjs-default-skin .vjs-controls {
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #dae7f6), color-stop(45%, #cddef3), color-stop(46%, #abc7ec), color-stop(50%, #abc7ec), color-stop(51%, #b8cfee), color-stop(100%, #cbddf3));
+  background-image: -webkit-linear-gradient(top, #dae7f6, #cddef3 45%, #abc7ec 46%, #abc7ec 50%, #b8cfee 51%, #cbddf3);
+  background-image: -moz-linear-gradient(top, #dae7f6, #cddef3 45%, #abc7ec 46%, #abc7ec 50%, #b8cfee 51%, #cbddf3);
+  background-image: -o-linear-gradient(top, #dae7f6, #cddef3 45%, #abc7ec 46%, #abc7ec 50%, #b8cfee 51%, #cbddf3);
+  background-image: -ms-linear-gradient(top, #dae7f6, #cddef3 45%, #abc7ec 46%, #abc7ec 50%, #b8cfee 51%, #cbddf3);
+  background-image: linear-gradient(top, #dae7f6, #cddef3 45%, #abc7ec 46%, #abc7ec 50%, #b8cfee 51%, #cbddf3);
+  border-color: #abc7ec; }
+
+/**
+ * Progress holder.
+ */
+.vjs-default-skin .vjs-progress-holder {
+  background: #04408c;
+  background: -moz-linear-gradient(top, #04408c, #dae7f6);
+  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#04408c), to(#dae7f6));
+  background: -webkit-linear-gradient(top, #04408c, #dae7f6);
+  background: -o-linear-gradient(top, #04408c, #dae7f6);
+  background: -ms-linear-gradient(top, #04408c, #dae7f6);
+  background: linear-gradient(top, #04408c, #dae7f6);
+  background: -moz-linear-gradient(top, #04408c, #dae7f6); }
+
+/**
+ * Load progress.
+ */
+.vjs-default-skin .vjs-load-progress {
+  background: #666666;
+  background: -moz-linear-gradient(top, #666666, #333333);
+  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#666666), to(#333333));
+  background: -webkit-linear-gradient(top, #666666, #333333);
+  background: -o-linear-gradient(top, #666666, #333333);
+  background: -ms-linear-gradient(top, #666666, #333333);
+  background: linear-gradient(top, #666666, #333333); }
+
+/**
+ * Play progress.
+ */
+.vjs-default-skin .vjs-play-progress {
+  background: #66ab16;
+  background: -moz-linear-gradient(top, #66ab16 0%, #89e832 50%, #3fc129 50%, #90dd4b 100%);
+  background: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #66ab16), color-stop(50%, #89e832), color-stop(50%, #3fc129), color-stop(100%, #90dd4b));
+  background: -webkit-linear-gradient(top, #66ab16 0%, #89e832 50%, #3fc129 50%, #90dd4b 100%);
+  background: -o-linear-gradient(top, #66ab16 0%, #89e832 50%, #3fc129 50%, #90dd4b 100%);
+  background: -ms-linear-gradient(top, #66ab16 0%, #89e832 50%, #3fc129 50%, #90dd4b 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$green1', endColorstr='$green4',GradientType=0 );
+  background: linear-gradient(top, #66ab16 0%, #89e832 50%, #3fc129 50%, #f1f1f1 100%); }

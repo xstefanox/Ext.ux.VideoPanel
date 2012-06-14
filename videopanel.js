@@ -1,6 +1,15 @@
+/*jslint browser: true, sloppy: true, white: true */
+/*global Ext: true, VideoJS: true */
+
 /**
  * A panel implementing an HTML5 video player.
  * Use the `video` config option to add the file references.
+ * VideoJS is needed for this component to work.
+ * 
+ * Add this to your page to load VideoJS:
+ * 
+ *   <script src="http://vjs.zencdn.net/c/video.js" type="text/javascript"></script>
+ *   <link href="http://vjs.zencdn.net/c/video-js.css" rel="stylesheet">
  * 
  * Example:
  * 
@@ -9,184 +18,133 @@
  *          items: {
  *              xtype: 'videopanel',
  *              title: 'HTML5 video panel',
- *              video: [ 'big_buck_bunny.webm', 'big_buck_bunny.ogg' ]
+ *              video: [ 'big_buck_bunny.webm', 'big_buck_bunny.ogg', 'big_buck_bunny.mp4' ],
+ *              videoWidth: 854,
+ *              videoHeight: 480
  *          }
  *      });
  */
 Ext.define('Ext.ux.VideoPanel', {
     extend: 'Ext.panel.Panel',
     xtype: 'videopanel',
-    layout: 'fit',
-    playCls: 'x-ux-videopanel-control-play',
-    pauseCls: 'x-ux-videopanel-control-pause',
     downloadCls: 'x-ux-videopanel-download-button',
     downloadMenuEntryCls: 'x-ux-videopanel-download-menuEntry',
+    defaultSkin: 'vjs-default-skin',
+    showControls: true,
+    loop: false,
+    constructor: function() {
+        
+        // throw an exception if the VideoJS library is not available
+        if (Ext.isEmpty(window.VideoJS)) {
+            throw "VideoJS library not loaded";
+        }
+        
+        // determine the skin
+        this.skin = this.skin || this.defaultSkin;
+        
+        this.callParent(arguments);
+    },
     onRender: function() {
     
         this.callParent(arguments);
         
-        // utility function to render the time value of the video
-        var renderTime = function(time) {
-            return Ext.util.Format.date(new Date(time * 1000), 'i:s');
-        };
-
+        this.body.addCls('x-ux-videopanel-body');
+        
         // create the video tag
         this.videoEl = this.body.insertFirst({
-            tag: 'video'
+            tag: 'video',
+            cls: 'video-js ' + this.skin,
+            width: this.videoWidth,
+            height: this.videoHeight
         });
 
-        // ensure the video does not overflow its container
-        this.videoEl.applyStyles({
-            width: 'inherit',
-            height: 'inherit'
-        });
+        // add a toolbar containing the download menu
+        if (this.allowDownload) {
+            
+            // create the toolbar
+            this.addDocked({
+                xtype: 'toolbar',
+                dock: 'top',
+                items: [
+                    {
+                        itemId: 'downloadMenu',
+                        xtype: 'button',
+                        text: 'Download',
+                        iconCls: this.downloadCls,
+                        // create a menu, it will be filled below
+                        menu: []
+                    }
+                ]
+            });
 
-        // create the task that will update the current time
-        this.timeUpdater = Ext.TaskManager.newTask({
-            run: function() {
-
-                // update the time text
-                this.currentTime.setText(renderTime(this.videoEl.dom.currentTime));
-
-                // update the slider position
-                this.slider.setValue(this.videoEl.dom.currentTime * 100 / this.videoEl.dom.duration, false);
+            // save a reference to the download menu
+            this.downloadMenu = this.getDockedItems('toolbar[dock="top"]')[0].items.get('downloadMenu').menu;
+        }
+        
+        // save a reference to the panel, because the VideoJS.ready() function does not permit scoping
+        var cmp = this;
+        
+        // apply VideoJS to the video
+        this.videoControl = new VideoJS(
+            this.videoEl.id,
+            {
+                controls: this.showControls,
+                preload: 'auto',
+                autoplay: this.autoPlay,
+                loop: this.loop,
+                poster: this.poster
             },
-            scope: this,
-            interval: 500
-        });
+            // on player ready
+            function() {
+            
+                Ext.fly(this.el).addCls('x-ux-videopanel-video');
+                
+                // add ech video to the list of sources for this video element
+                Ext.each(cmp.video, function(source) {
 
-        // set the duration time when the video will be loaded
-        this.videoEl.on('loadedmetadata', function() {
-            this.duration.setText(renderTime(this.videoEl.dom.duration));
-        }, this, { single: true });
+                    var url, type;
 
-        // when the video starts playing, start the time updater and change the button icon
-        this.videoEl.on('playing', function() {
-            this.timeUpdater.start();
-            this.playButton.setIconCls(this.pauseCls);
-        }, this);
+                    // determine the file url
+                    if (Ext.isObject(source)) {
+                        url = source.url;
+                    }
+                    else {
+                        url = source;
+                    }
 
-        // when the video is paused, stop the time updater and change the button icon
-        this.videoEl.on('pause', function() {
-            this.timeUpdater.stop();
-            this.playButton.setIconCls(this.playCls);
-        }, this);
+                    // read the mime type, if given
+                    if (Ext.isObject(source) && !Ext.isEmpty(source.type)) {
+                        type = source.type;
+                    }
+                    // or try to determine the mime type from the file name
+                    else if (/\.(ogg)$/i.test(url)) {
+                        type = 'video/ogg';
+                    }
+                    else if (/\.(mp4)$/i.test(url)) {
+                        type = 'video/mp4';
+                    }
+                    else if (/\.(webm)$/i.test(url)) {
+                        type = 'video/webm';
+                    }
+                    // otherwise leave the type attribute empty
+                    else {
+                        type = '';
+                    }
 
-        // when the video is ready to start playing, enable the controls
-        this.videoEl.on('canplay', function() {
-            this.getDockedItems('toolbar[dock="bottom"]')[0].enable();
-        }, this, { single: true });
+                    this.src({ src: url , type: type });
 
-        // we need to save a reference to the video element for the tipText() method of the slider
-        var videoEl = this.videoEl;
+                    if (cmp.allowDownload) {
 
-        this.addDocked({
-            xtype: 'toolbar',
-            dock: 'top',
-            items: [
-                {
-                    itemId: 'downloadMenu',
-                    xtype: 'button',
-                    text: 'Download',
-                    iconCls: this.downloadCls,
-                    // create a menu, it will be filled below
-                    menu: []
-                }
-            ]
+                        // add the menu entry
+                        cmp.downloadMenu.add({
+                            text: url,
+                            href: url,
+                            tooltip: 'Right-click and select "Save as..." to download',
+                            iconCls: cmp.downloadMenuEntryCls
+                        });
+                    }
+                }, this);
         });
         
-        // create the controls toolbar
-        this.addDocked({
-            xtype: 'toolbar',
-            dock: 'bottom',
-            disabled: true,
-            items: [
-                {
-                    itemId: 'play',
-                    xtype: 'button',
-                    iconCls: this.playCls,
-                    handler: function() {
-
-                        if (this.videoEl.dom.paused) {
-                            this.videoEl.dom.play();
-                        }
-                        else {
-                            this.videoEl.dom.pause();
-                        }
-                    },
-                    scope: this
-                },
-                {
-                    itemId: 'slider',
-                    xtype: 'slider',
-                    minValue: 0,
-                    maxValue: 100,
-                    isFill: true,
-                    flex: 1,
-                    tipText: function(thumb) {
-                        return renderTime(thumb.value * videoEl.dom.duration / 100);
-                    },
-                    listeners: {
-                        dragstart: {
-                            fn: function() {
-                                this.videoEl.playingBeforeDrag = !(this.videoEl.dom.paused || this.videoEl.dom.ended);
-                                this.videoEl.dom.pause();
-                            },
-                            scope: this
-                        },
-                        dragend: {
-                            fn: function() {
-                                this.videoEl.dom.currentTime = this.slider.getValue() * this.videoEl.dom.duration / 100;
-                                if (this.videoEl.playingBeforeDrag) {
-                                    this.videoEl.dom.play();
-                                    this.videoEl.playingBeforeDrag = false;
-                                }
-                            },
-                            scope: this
-                        }
-                    }
-                },
-                {
-                    itemId: 'currentTime',
-                    xtype: 'tbtext',
-                    text: '00:00'
-                },
-                {
-                    xtype: 'tbtext',
-                    text: '/'
-                },
-                {
-                    itemId: 'duration',
-                    xtype: 'tbtext',
-                    text: '00:00'
-                }
-            ]
-        });
-
-        // save references to the elements of the controls toolbar
-        this.playButton = this.getDockedItems('toolbar[dock="bottom"]')[0].items.get('play');
-        this.slider = this.getDockedItems('toolbar[dock="bottom"]')[0].items.get('slider');
-        this.currentTime = this.getDockedItems('toolbar[dock="bottom"]')[0].items.get('currentTime');
-        this.duration = this.getDockedItems('toolbar[dock="bottom"]')[0].items.get('duration');
-        this.downloadMenu = this.getDockedItems('toolbar[dock="top"]')[0].items.get('downloadMenu').menu;
-
-        // add ech video to the list of sources for this video element
-        Ext.each(this.video, function(url) {
-            
-            // add the <source> element
-            this.videoEl.createChild({
-                tag: 'source',
-                src: url
-            });
-            
-            // add the menu entry
-            this.downloadMenu.add({
-                text: url,
-                href: url,
-                tooltip: 'Right-click and select "Save as..." to download',
-                iconCls: this.downloadMenuEntryCls
-            });
-            
-        }, this);
     }
 });
