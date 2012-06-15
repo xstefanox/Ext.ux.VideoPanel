@@ -13,15 +13,11 @@
  * 
  * Example:
  * 
- *      Ext.create('Ext.container.Viewport', {
- *          layout: 'fit',
- *          items: {
- *              xtype: 'videopanel',
- *              title: 'HTML5 video panel',
- *              video: [ 'big_buck_bunny.webm', 'big_buck_bunny.ogg', 'big_buck_bunny.mp4' ],
- *              videoWidth: 854,
- *              videoHeight: 480
- *          }
+ *      Ext.create('Ext.ux.VideoPanel', {
+ *          title: 'HTML5 video panel',
+ *          video: [ { url: 'big_buck_bunny.webm', type: 'video/webm' }, 'big_buck_bunny.ogg', 'big_buck_bunny.mp4' ],
+ *          videoWidth: 854,
+ *          videoHeight: 480
  *      });
  */
 Ext.define('Ext.ux.VideoPanel', {
@@ -31,7 +27,9 @@ Ext.define('Ext.ux.VideoPanel', {
     downloadMenuEntryCls: 'x-ux-videopanel-download-menuEntry',
     defaultSkin: 'vjs-default-skin',
     showControls: true,
+    autoPlay: false,
     loop: false,
+    poster: '',
     constructor: function() {
         
         // throw an exception if the VideoJS library is not available
