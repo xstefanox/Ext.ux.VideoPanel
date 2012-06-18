@@ -115,7 +115,7 @@ Ext.define('Ext.ux.VideoPanel', {
                         type = source.type;
                     }
                     // or try to determine the mime type from the file name
-                    else if (/\.(ogg)$/i.test(url)) {
+                    else if (/\.(ogg|ogv)$/i.test(url)) {
                         type = 'video/ogg';
                     }
                     else if (/\.(mp4)$/i.test(url)) {
