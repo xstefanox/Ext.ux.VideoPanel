@@ -16,8 +16,8 @@
  *      Ext.create('Ext.ux.VideoPanel', {
  *          title: 'HTML5 video panel',
  *          video: [ { url: 'big_buck_bunny.webm', type: 'video/webm' }, 'big_buck_bunny.ogg', 'big_buck_bunny.mp4' ],
- *          videoWidth: 854,
- *          videoHeight: 480
+ *          width: 854,
+ *          height: 480
  *      });
  */
 Ext.define('Ext.ux.VideoPanel', {
@@ -52,8 +52,8 @@ Ext.define('Ext.ux.VideoPanel', {
         this.videoEl = this.body.insertFirst({
             tag: 'video',
             cls: 'video-js ' + this.skin,
-            width: this.videoWidth,
-            height: this.videoHeight
+            width: this.width,
+            height: this.height
         });
 
         // add a toolbar containing the download menu
@@ -97,6 +97,10 @@ Ext.define('Ext.ux.VideoPanel', {
             
                 Ext.fly(this.el).addCls('x-ux-videopanel-video');
                 
+                var sources = [],
+                    noMp4SourcesCount = 0,
+                    filteredSources = [];
+                
                 // add ech video to the list of sources for this video element
                 Ext.each(cmp.video, function(source) {
 
@@ -129,7 +133,8 @@ Ext.define('Ext.ux.VideoPanel', {
                         type = '';
                     }
 
-                    this.src({ src: url , type: type });
+                    // add this source to the list
+                    sources.push({ src: url , type: type });
 
                     if (cmp.allowDownload) {
 
@@ -141,6 +146,39 @@ Ext.define('Ext.ux.VideoPanel', {
                             iconCls: cmp.downloadMenuEntryCls
                         });
                     }
+                }, this);
+                
+                // on Firefox, VideoJS wrongly falls back to Flash if one of the sources is an MP4,
+                // even though there are also OGG or Webm sources,
+                // so check if there are MP4 in the sources list
+                if (Ext.isGecko) {
+                    
+                    // count the number of non-MP4 sources
+                    Ext.each(sources, function(source) {
+                        if (source.type !== 'video/mp4') {
+                            noMp4SourcesCount += 1;
+                        }
+                    }, this);
+                    
+                    // if there is at least an MP4, but not only MP4 in the list
+                    if (sources.length !== noMp4SourcesCount) {
+                    
+                        // create a non-MP4 only list, to avoid an unnecessary fallback to Flash,
+                        // which is not working correctly on some platforms
+                        Ext.each(sources, function(source) {
+                            if (source.type !== 'video/mp4') {
+                                filteredSources.push(source);
+                            }
+                        }, this);
+                        
+                        // overwrite the original list with the filtered one
+                        sources = filteredSources;
+                    }
+                }
+                
+                // add the sources to the list
+                Ext.each(sources, function(source) {
+                    this.src(source);
                 }, this);
         });
         
