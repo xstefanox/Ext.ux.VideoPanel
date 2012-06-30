@@ -30,17 +30,35 @@ Ext.define('Ext.ux.VideoPanel', {
     autoPlay: false,
     loop: false,
     poster: '',
-    constructor: function() {
+    constructor: function(config) {
         
         // throw an exception if the VideoJS library is not available
         if (Ext.isEmpty(window.VideoJS)) {
             throw "VideoJS library not loaded";
         }
         
+        // width and height must be applied to the video only;
+        // after the rendering of the panel is completed, they can also be applied to the panel,
+        // otherwise video controls won't be visible
+        if (!Ext.isEmpty(config.width)) {
+            config.videoWidth = config.width;
+            Ext.destroyMembers(config, 'width');
+        }
+        
+        if (!Ext.isEmpty(config.height)) {
+            config.videoHeight = config.height;
+            Ext.destroyMembers(config, 'height');
+        }
+        
         // determine the skin
         this.skin = this.skin || this.defaultSkin;
         
         this.callParent(arguments);
+        
+        // remember to apply the needed width when the panel will be rendered; height is not needed
+        if (!Ext.isEmpty(this.videoWidth)) {
+            this.on('afterrender', function() { this.setWidth(this.videoWidth); }, this, { single: true });
+        }
     },
     onRender: function() {
     
@@ -52,8 +70,8 @@ Ext.define('Ext.ux.VideoPanel', {
         this.videoEl = this.body.insertFirst({
             tag: 'video',
             cls: 'video-js ' + this.skin,
-            width: this.width,
-            height: this.height
+            width: this.videoWidth,
+            height: this.videoHeight
         });
 
         // add a toolbar containing the download menu
@@ -181,6 +199,5 @@ Ext.define('Ext.ux.VideoPanel', {
                     this.src(source);
                 }, this);
         });
-        
     }
 });
